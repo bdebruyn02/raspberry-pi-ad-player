@@ -6,10 +6,11 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {CommonModule} from '@angular/common';
 import {DataService} from '../../services/data';
 import {ISchedule} from '../../interfaces/schedule';
+import {MatCardModule} from '@angular/material/card';
 
 @Component({
   selector: 'app-scheduled-videos',
-  imports: [MatListModule, MatButtonModule, MatIconModule, MatTooltipModule, CommonModule],
+  imports: [MatListModule, MatButtonModule, MatIconModule, MatTooltipModule, CommonModule, MatCardModule],
   templateUrl: './scheduled-videos.html',
   styleUrl: './scheduled-videos.scss'
 })

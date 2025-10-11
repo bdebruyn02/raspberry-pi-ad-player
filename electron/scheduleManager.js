@@ -17,14 +17,14 @@ function connectDB() {
  */
 function createSchedule(schedule, callback) {
     const db = connectDB();
-    const { video_id, start_time, end_time, duration_limit, active } = schedule;
+    const { video_id, start_time, end_time, max_duration } = schedule;
 
     db.run(
-        `INSERT INTO schedules (video_id, start_time, end_time, duration_limit, active)
+        `INSERT INTO schedule (video_id, start_time, end_time, max_duration)
      VALUES (?, ?, ?, ?, ?)`,
-        [video_id, start_time, end_time, duration_limit || 0, active ?? 1],
+        [video_id, start_time, end_time, max_duration || 0],
         function (err) {
-            db.close();
+            db.close()
             callback(err, { id: this?.lastID });
         }
     );
@@ -37,7 +37,7 @@ function getSchedules(callback) {
     const db = connectDB();
     db.all(
         `SELECT s.*, v.filename, v.filepath
-     FROM schedules s
+     FROM schedule s
      JOIN videos v ON s.video_id = v.id
      ORDER BY s.start_time ASC`,
         (err, rows) => {
@@ -52,12 +52,12 @@ function getSchedules(callback) {
  */
 function updateSchedule(id, data, callback) {
     const db = connectDB();
-    const { start_time, end_time, duration_limit, active } = data;
+    const { start_time, end_time, max_duration } = data;
     db.run(
-        `UPDATE schedules
-     SET start_time = ?, end_time = ?, duration_limit = ?, active = ?
+        `UPDATE schedule
+     SET start_time = ?, end_time = ?, max_duration = ?
      WHERE id = ?`,
-        [start_time, end_time, duration_limit || 0, active ?? 1, id],
+        [start_time, end_time, max_duration || 0, id],
         function (err) {
             db.close();
             callback(err, { changes: this?.changes });
@@ -70,7 +70,7 @@ function updateSchedule(id, data, callback) {
  */
 function deleteSchedule(id, callback) {
     const db = connectDB();
-    db.run(`DELETE FROM schedules WHERE id = ?`, [id], function (err) {
+    db.run(`DELETE FROM schedule WHERE id = ?`, [id], function (err) {
         db.close();
         callback(err, { changes: this?.changes });
     });

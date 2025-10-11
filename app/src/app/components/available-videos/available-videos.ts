@@ -6,6 +6,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {DataService} from '../../services/data';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {CommonModule} from '@angular/common';
+import {ISchedule} from '../../interfaces/schedule';
 
 @Component({
   selector: 'app-available-videos',
@@ -23,8 +24,24 @@ export class AvailableVideos implements OnInit {
   }
 
   async addToSchedule(args: IVideo) {
-    console.info('Adding to Schedule', args);
-    return null;
+
+    const params: Partial<ISchedule> = {
+      video_id: args.id,
+      start_time: new Date(),
+      end_time: new Date(),
+      max_duration: args.duration
+    };
+
+    try {
+      const {id} = await this.ds.createSchedule(params);
+
+      if(id) {
+        await this.ds.loadSchedule(); // reloads schedule
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
   }
 
   private async loadVideos() {

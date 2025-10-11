@@ -11,5 +11,4 @@ import {AvailableVideos} from './components/available-videos/available-videos';
 })
 export class App {
   protected readonly title = signal('app');
-
 }
