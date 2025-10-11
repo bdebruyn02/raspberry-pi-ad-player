@@ -1,7 +1,5 @@
 import {Injectable, signal} from '@angular/core';
 import {IVideo} from '../interfaces/video';
-
-// const {ipcRenderer} = window.electronAPI('electron');
 const {syncVideos, getVideos} = window.electronAPI;
 
 @Injectable({
