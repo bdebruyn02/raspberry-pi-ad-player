@@ -21,7 +21,7 @@ async function createWindow() {
     if (isDev) {
         // When running ng serve
         await mainWindow.loadURL('http://localhost:4200');
-        mainWindow.webContents.openDevTools(); // optional
+        // mainWindow.webContents.openDevTools(); // optional
     } else {
         // When running the built app
         const indexPath = path.join(__dirname, '../app/dist/app/browser/index.html');
@@ -35,6 +35,7 @@ async function createWindow() {
 
 app.whenReady().then(async () => {
     Database.init();
+    // Do check
     await createWindow();
 });
 
@@ -50,6 +51,14 @@ ipcMain.handle('get-videos', async () => {
             else resolve(rows);
         });
     });
+});
+
+ipcMain.handle('toggle-fullscreen', () => {
+    if (mainWindow.isFullScreen()) {
+        mainWindow.setFullScreen(false);
+    } else {
+        mainWindow.setFullScreen(true);
+    }
 });
 
 app.on('window-all-closed', () => {

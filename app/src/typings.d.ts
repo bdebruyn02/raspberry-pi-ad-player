@@ -3,5 +3,6 @@ interface Window {
     syncVideos: () => Promise<any>;
     getVideos: () => Promise<any>;
     getSchedule: () => Promise<any>;
+    toggleFullscreen: () => Promise<any>;
   };
 }
