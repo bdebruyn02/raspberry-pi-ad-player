@@ -1,15 +1,19 @@
 <h2>Available Videos:</h2>
 <div>
   <mat-list>
-    @for ( item of [1,1,1]; track $index) {
+    @for (item of videos(); track $index) {
       <mat-list-item>
-        <span matListItemTitle>Paprika</span>
+        <span matListItemTitle>{{ item.filename }}</span>
         <span matListItemMeta>
-         <button matButton="tonal">
+         <button matButton="tonal" (click)="addToSchedule(item)">
           <mat-icon>add_to_queue</mat-icon>
           Add to Schedule
         </button>
         </span>
+      </mat-list-item>
+    } @empty {
+      <mat-list-item matTooltip="No Videos, try adding some videos to your 'Videos' folder and action the resync.">
+        No Videos, try adding some videos to your 'Videos' folder and action the resync.
       </mat-list-item>
     }
   </mat-list>

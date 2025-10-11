@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const Database = require('./database');
+const VideoManager = require('./videoManager');
 
 const isDev = !app.isPackaged; // Detect dev mode (when using ng serve)
 let mainWindow;
@@ -13,6 +14,7 @@ async function createWindow() {
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             webSecurity: !isDev, // allow dev server from localhost
+            nodeIntegration: true
         },
     });
 
@@ -34,6 +36,20 @@ async function createWindow() {
 app.whenReady().then(async () => {
     Database.init();
     await createWindow();
+});
+
+ipcMain.handle('sync-videos', async () => {
+    VideoManager.syncVideos();
+    return true;
+});
+
+ipcMain.handle('get-videos', async () => {
+    return new Promise((resolve, reject) => {
+        VideoManager.getVideos((err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+        });
+    });
 });
 
 app.on('window-all-closed', () => {
