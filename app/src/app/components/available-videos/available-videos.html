@@ -1,1 +1,16 @@
-<p>available-videos works!</p>
+<h2>Available Videos:</h2>
+<div>
+  <mat-list>
+    @for ( item of [1,1,1]; track $index) {
+      <mat-list-item>
+        <span matListItemTitle>Paprika</span>
+        <span matListItemMeta>
+         <button matButton="tonal">
+          <mat-icon>add_to_queue</mat-icon>
+          Add to Schedule
+        </button>
+        </span>
+      </mat-list-item>
+    }
+  </mat-list>
+</div>
