@@ -3,7 +3,7 @@ import {
   effect,
   ElementRef,
   input,
-  OnDestroy, output,
+  OnDestroy, output, signal,
   viewChild,
   ViewEncapsulation
 } from '@angular/core';
@@ -33,6 +33,7 @@ export interface IVideoPlayer {
 export class VideoPlayer implements OnDestroy {
   target = viewChild<ElementRef>('target');
   videoSrc = input<string>();
+  playerCreated = signal<boolean>(false)
   ended = output();
 
   private options: IVideoPlayer = {
@@ -49,9 +50,9 @@ export class VideoPlayer implements OnDestroy {
 
   constructor() {
     effect(() => {
-
-      if (this.videoSrc() && this.player) {
-        console.info(this.videoSrc());
+      console.info(this.videoSrc(), this.playerCreated());
+      if (this.videoSrc() && this.playerCreated()) {
+        console.info("start new video");
         this.player.src({ src: this.videoSrc(), type: 'video/mp4' });
         this.player.load();
         this.player.play();
@@ -71,9 +72,10 @@ export class VideoPlayer implements OnDestroy {
   }
 
   private init() {
-    if (!this.target()) return;
+    if (!this.target() || this.playerCreated()) return;
 
     this.player = videojs(this.target()?.nativeElement, this.options);
+    this.playerCreated.set(true);
 
     this.player.on('ended', () => {
       this.ended.emit();

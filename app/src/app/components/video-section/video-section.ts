@@ -12,7 +12,7 @@ export class VideoSection implements OnInit {
   currentSrc = signal<string | undefined>(undefined);
   ds = inject(DataService);
 
-  private currentScheduleIndex = 0;
+  private currentId?: number;
 
   async ngOnInit() {
     await this.loadSettings();
@@ -49,35 +49,37 @@ export class VideoSection implements OnInit {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
-    const schedules = [...this.ds.schedules() ?? []]?.sort((a, b) => a.id - b.id);
+    const schedules = this.ds.schedules()?.sort((a, b) => a.id - b.id) ?? [];
 
     // Filter schedules by time window
     const availableSchedules = schedules.filter(s => {
-      s.start_time.setHours(0, 0, 0, 0);
-      s.end_time.setHours(0, 0, 0, 0);
+      const start = s.start_time;
+      const end = s.end_time;
 
-      return now <= s.start_time && now >= s.end_time;
+      start.setHours(0,0,0,0);
+      end.setHours(0,0,0,0);
+
+      return now >= start && now <= end;
     });
 
     if (availableSchedules.length === 0) {
       console.log('No active schedules at this time');
       return;
     }
+    console.info(availableSchedules);
 
-    // Determine next schedule in sequence
-    let nextIndex = availableSchedules.findIndex(
-      s => s.id === schedules[this.currentScheduleIndex]?.id
-    ) + 1;
+    const ids = availableSchedules.map(s => s.id);
+    console.info(ids)
 
-    if (nextIndex >= availableSchedules.length) {
-      // Repeat last schedule if at end
-      nextIndex = availableSchedules.length - 1;
+    if (!this.currentId) {
+      this.currentId = ids[0]; // get the first one
+    } else {
+      this.currentId  = this.getNextId(ids, this.currentId) ?? ids[0];
     }
 
-    const nextSchedule = availableSchedules[nextIndex];
-    this.currentScheduleIndex = schedules.findIndex(s => s.id === nextSchedule.id);
+    console.info(this.currentId);
 
-    console.info(`Schedule index: ${nextSchedule.id}`);
+    const nextSchedule = availableSchedules.find(x => x.id === this.currentId)!;
 
     let video = this.ds.videos()?.find(v => v.id === nextSchedule.video_id);
 
@@ -85,9 +87,36 @@ export class VideoSection implements OnInit {
       return;
     }
 
-    console.info(video.filepath);
+    this.currentSrc.update(() => `file://${encodeURI(video.filepath)}`);
 
-    this.currentSrc.set(`file://${encodeURI(video.filepath)}`);
+    // Determine next schedule in sequence
+    // let nextIndex = availableSchedules.findIndex(
+    //   s => s.id === schedules[this.currentScheduleIndex]?.id
+    // ) + 1;
+    //
+    // if (nextIndex >= availableSchedules.length) {
+    //   // Repeat last schedule if at end
+    //   nextIndex = availableSchedules.length - 1;
+    // }
+    //
+    // const nextSchedule = availableSchedules[nextIndex];
+    // this.currentScheduleIndex = schedules.findIndex(s => s.id === nextSchedule.id);
+    //
+    // console.info(`Schedule index: ${nextSchedule.id}`);
+    //
+    // let video = this.ds.videos()?.find(v => v.id === nextSchedule.video_id);
+    //
+    // if (!video) {
+    //   return;
+    // }
+    //
+    // this.currentSrc.update(() => `file://${encodeURI(video.filepath)}`);
+  }
+
+  private getNextId(ids: number[], currentId: number) {
+    const index = ids.indexOf(currentId);
+    if (index === -1) return null; // not found
+    return ids[(index + 1) % ids.length];
   }
 
   // Called when VideoPlayer emits ended or max_duration expires
