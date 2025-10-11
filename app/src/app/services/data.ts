@@ -40,7 +40,10 @@ export class DataService {
 
   // Fetch methods
   async loadSchedule() {
-    const data = await getSchedules() as ISchedule[];
+    let data = await getSchedules() as ISchedule[];
+
+    data = data.map(x => ({...x, start_time: new Date(x.start_time), end_time: new Date(x.end_time)}))
+
     this.schedules.set(data);
   }
 

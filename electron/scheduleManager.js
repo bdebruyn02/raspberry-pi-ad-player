@@ -21,7 +21,7 @@ function createSchedule(schedule, callback) {
 
     db.run(
         `INSERT INTO schedule (video_id, start_time, end_time, max_duration)
-     VALUES (?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?)`,
         [video_id, start_time, end_time, max_duration || 0],
         function (err) {
             db.close()

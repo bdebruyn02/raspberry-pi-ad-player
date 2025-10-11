@@ -1,21 +1,47 @@
 <h2>Schedule Editor:</h2>
 <div>
-  <mat-list>
-    @for (item of schedules(); track $index) {
-      <mat-list-item>
-        <mat-card appearance="outlined">
-          <mat-card-header>
-            <mat-card-title>{{item.filename}}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            TEST
-          </mat-card-content>
-        </mat-card>
-      </mat-list-item>
-    } @empty {
-      <mat-list-item matTooltip="No Schedules, at the moment">
-        No Schedules, at the moment.
-      </mat-list-item>
-    }
-  </mat-list>
+  @for (item of schedules(); track $index) {
+    <mat-card appearance="filled" class="card-container ">
+      <mat-card-header class="card-header">
+        <mat-card-subtitle>{{ item.filename }}</mat-card-subtitle>
+        <button mat-icon-button aria-label="Delete" class="header-button" (click)="onDelete(item.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="grid_4_1">
+          <mat-form-field appearance="outline">
+            <mat-label>Start Time</mat-label>
+            <input matInput [matDatepicker]="start_date" [(ngModel)]="item.start_time">
+            <mat-datepicker-toggle matIconSuffix [for]="start_date"></mat-datepicker-toggle>
+            <mat-datepicker #start_date></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>End Time</mat-label>
+            <input matInput [matDatepicker]="end_date" [(ngModel)]="item.end_time">
+            <mat-datepicker-toggle matIconSuffix [for]="end_date"></mat-datepicker-toggle>
+            <mat-datepicker #end_date></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Duration</mat-label>
+            <input type="number" matInput placeholder="Duration" [(ngModel)]="item.max_duration">
+            <mat-icon matSuffix>timer</mat-icon>
+          </mat-form-field>
+
+          <button matButton="filled" (click)="onUpdate(item)" class="big-button">
+            <mat-icon>save</mat-icon>
+            Save
+          </button>
+        </div>
+
+
+      </mat-card-content>
+    </mat-card>
+  } @empty {
+    <mat-list-item matTooltip="No Schedules, at the moment">
+      No Schedules, at the moment.
+    </mat-list-item>
+  }
 </div>
