@@ -12,9 +12,7 @@ export class VideoSection implements OnInit {
   currentSrc = signal<string | undefined>(undefined);
   ds = inject(DataService);
 
-  private isElectron = window && (window as any).process && (window as any).process.type;
   private currentScheduleIndex = 0;
-  private videoTimer: any;
 
   async ngOnInit() {
     await this.loadSettings();
@@ -51,10 +49,15 @@ export class VideoSection implements OnInit {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
-    const schedules = this.ds.schedules()?.sort((a, b) => a.id - b.id) ?? [];
+    const schedules = [...this.ds.schedules() ?? []]?.sort((a, b) => a.id - b.id);
 
     // Filter schedules by time window
-    const availableSchedules = schedules.filter(s => s.start_time <= now && s.end_time >= now);
+    const availableSchedules = schedules.filter(s => {
+      s.start_time.setHours(0, 0, 0, 0);
+      s.end_time.setHours(0, 0, 0, 0);
+
+      return now <= s.start_time && now >= s.end_time;
+    });
 
     if (availableSchedules.length === 0) {
       console.log('No active schedules at this time');
@@ -74,28 +77,22 @@ export class VideoSection implements OnInit {
     const nextSchedule = availableSchedules[nextIndex];
     this.currentScheduleIndex = schedules.findIndex(s => s.id === nextSchedule.id);
 
+    console.info(`Schedule index: ${nextSchedule.id}`);
+
     let video = this.ds.videos()?.find(v => v.id === nextSchedule.video_id);
 
     if (!video) {
       return;
     }
 
-    // Convert path to file:// for Electron
-    if (this.isElectron) {
-      this.currentSrc.set(`file://${encodeURI(video.filepath)}`);
-    }
+    console.info(video.filepath);
 
-    // Handle max_duration
-    if (this.videoTimer) {
-      clearTimeout(this.videoTimer);
-    }
-
-    this.videoTimer = setTimeout(() => this.onVideoEnded(), nextSchedule.max_duration * 1000);
-
+    this.currentSrc.set(`file://${encodeURI(video.filepath)}`);
   }
 
   // Called when VideoPlayer emits ended or max_duration expires
   onVideoEnded() {
+    console.info('Video ended');
     this.playNextSchedule();
   }
 }

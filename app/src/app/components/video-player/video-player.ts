@@ -1,10 +1,9 @@
 import {
-  AfterViewInit,
   Component,
   effect,
   ElementRef,
   input,
-  OnDestroy,
+  OnDestroy, output,
   viewChild,
   ViewEncapsulation
 } from '@angular/core';
@@ -31,41 +30,38 @@ export interface IVideoPlayer {
   styleUrl: './video-player.scss',
   encapsulation: ViewEncapsulation.None,
 })
-export class VideoPlayer implements AfterViewInit, OnDestroy {
+export class VideoPlayer implements OnDestroy {
   target = viewChild<ElementRef>('target');
   videoSrc = input<string>();
+  ended = output();
 
   private options: IVideoPlayer = {
     autoplay: false,
     fluid: true, // responsive width
-    aspectRatio: '16:9',
+    aspectRatio: '3:2',
     sources: [],
     errorDisplay: false,
     loadingSpinner: false,
     debug: false,
   }
-  player: VideoJsPlayer;
+
+  player?: VideoJsPlayer;
 
   constructor() {
     effect(() => {
-      const src = this.videoSrc();
-      if (src && this.player) {
-        console.info(src);
-        this.player.src({ src, type: 'video/mp4' });
+
+      if (this.videoSrc() && this.player) {
+        console.info(this.videoSrc());
+        this.player.src({ src: this.videoSrc(), type: 'video/mp4' });
         this.player.load();
+        this.player.play();
       }
+
+      if(this.target() && !this.player) {
+        this.init()
+      }
+
     });
-  }
-
-  ngAfterViewInit(): void {
-    if (!this.target()) return;
-
-    this.player = videojs(this.target()?.nativeElement, this.options);
-
-    // Only set the source if we have a video path
-    if (this.videoSrc()) {
-      this.setVideoSource(this.videoSrc()!);
-    }
   }
 
   ngOnDestroy(): void {
@@ -74,10 +70,13 @@ export class VideoPlayer implements AfterViewInit, OnDestroy {
     }
   }
 
-  // Helper to set video source
-  private setVideoSource(src: string) {
-    this.player.src({ src, type: 'video/mp4' });
-    this.player.load();
-    this.player.play();  // ensures autoplay starts if muted
+  private init() {
+    if (!this.target()) return;
+
+    this.player = videojs(this.target()?.nativeElement, this.options);
+
+    this.player.on('ended', () => {
+      this.ended.emit();
+    })
   }
 }
