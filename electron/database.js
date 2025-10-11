@@ -34,6 +34,12 @@ module.exports = {
         db.serialize(() => db.run((tableCreate.schedule)));
         db.serialize(() => db.run((tableCreate.app_settings)));
 
+        db.get(`SELECT * FROM app_settings WHERE id = 1`, (err, row) => {
+            if (!row) {
+                db.run(`INSERT INTO app_settings (id) VALUES (1)`);
+            }
+        });
+
         db.close();
     },
 };

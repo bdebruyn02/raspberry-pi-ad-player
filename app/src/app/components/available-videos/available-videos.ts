@@ -14,7 +14,6 @@ import {CommonModule} from '@angular/common';
   styleUrl: './available-videos.scss'
 })
 export class AvailableVideos implements OnInit {
-
  videos = signal<IVideo[]>([]);
 
  private ds = inject(DataService);
