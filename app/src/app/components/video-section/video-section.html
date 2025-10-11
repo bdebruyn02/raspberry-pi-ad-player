@@ -1,4 +1,14 @@
-{{appSettings()?.height}}
-{{appSettings()?.width}}
-{{appSettings()?.pos_x}}
-{{appSettings()?.pos_y}}
+<div
+  class="video-container"
+  [style.position]="'absolute'"
+  [style.left.px]="ds.appSettings()?.pos_x"
+  [style.top.px]="ds.appSettings()?.pos_y"
+  [style.width.px]="ds.appSettings()?.width"
+  [style.height.px]="ds.appSettings()?.height"
+>
+
+  <app-video-player
+    [videoSrc]="currentSrc()"
+    (ended)="onVideoEnded()"
+  />
+</div>

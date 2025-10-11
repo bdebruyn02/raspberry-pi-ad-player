@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {MatListModule} from '@angular/material/list';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -21,11 +21,10 @@ import {FormsModule} from '@angular/forms';
   styleUrl: './scheduled-videos.scss'
 })
 export class ScheduledVideos implements OnInit {
-    schedules = signal<ISchedule[]>([]);
-    private ds = inject(DataService);
+   ds = inject(DataService);
 
-    ngOnInit(): void {
-      this.loadSchedules().then(() => this.schedules = this.ds.schedules)
+    async ngOnInit() {
+      await this.loadSchedules()
     }
 
     async onUpdate(schedule: ISchedule) {
@@ -52,7 +51,7 @@ export class ScheduledVideos implements OnInit {
       }
     }
 
-    private async loadSchedules(){
+    private async loadSchedules() {
       try {
         await this.ds.loadSchedule();
       } catch (error) {

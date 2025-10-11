@@ -1,6 +1,6 @@
 <h2>Schedule Editor:</h2>
 <div>
-  @for (item of schedules(); track $index) {
+  @for (item of ds.schedules(); track $index) {
     <mat-card appearance="filled" class="card-container ">
       <mat-card-header class="card-header">
         <mat-card-subtitle>{{ item.filename }}</mat-card-subtitle>

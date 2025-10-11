@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {IVideo} from '../../interfaces/video';
 import {MatListModule} from '@angular/material/list';
 import {MatButtonModule} from '@angular/material/button';
@@ -15,12 +15,10 @@ import {ISchedule} from '../../interfaces/schedule';
   styleUrl: './available-videos.scss'
 })
 export class AvailableVideos implements OnInit {
- videos = signal<IVideo[]>([]);
+ ds = inject(DataService);
 
- private ds = inject(DataService);
-
-  ngOnInit(): void {
-    this.loadVideos().then(() => this.videos = this.ds.videos);
+  async ngOnInit() {
+    await this.loadVideos()
   }
 
   async addToSchedule(args: IVideo) {
@@ -41,7 +39,6 @@ export class AvailableVideos implements OnInit {
     } catch (e) {
       console.error(e);
     }
-
   }
 
   private async loadVideos() {

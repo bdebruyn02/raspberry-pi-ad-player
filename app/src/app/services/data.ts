@@ -12,8 +12,8 @@ interface IUpdateReturn {
   providedIn: 'root'
 })
 export class DataService {
-  videos = signal<IVideo[]>([]);
-  schedules = signal<ISchedule[]>([]);
+  videos = signal<IVideo[] | null>(null);
+  schedules = signal<ISchedule[] | null>(null);
   appSettings = signal<IAppSettings | null>(null);
 
   // Create, Delete, Edit Methods
@@ -43,7 +43,6 @@ export class DataService {
     let data = await getSchedules() as ISchedule[];
 
     data = data.map(x => ({...x, start_time: new Date(x.start_time), end_time: new Date(x.end_time)}))
-
     this.schedules.set(data);
   }
 
