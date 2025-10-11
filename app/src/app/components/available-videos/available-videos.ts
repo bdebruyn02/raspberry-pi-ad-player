@@ -5,10 +5,11 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {DataService} from '../../services/data';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-available-videos',
-  imports: [MatListModule, MatButtonModule, MatIconModule, MatTooltipModule],
+  imports: [MatListModule, MatButtonModule, MatIconModule, MatTooltipModule, CommonModule],
   templateUrl: './available-videos.html',
   styleUrl: './available-videos.scss'
 })

@@ -35,7 +35,6 @@ async function createWindow() {
 
 app.whenReady().then(async () => {
     Database.init();
-    // Do check
     await createWindow();
 });
 

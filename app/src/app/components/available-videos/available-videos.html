@@ -3,7 +3,9 @@
   <mat-list>
     @for (item of videos(); track $index) {
       <mat-list-item>
-        <span matListItemTitle>{{ item.filename }}</span>
+        <span class="bold" matListItemTitle>{{ item.filename }}</span>
+        <span matListItemLine>{{ item.duration * 1000 | date: 'HH:mm:ss':'UTC'}}</span>
+
         <span matListItemMeta>
          <button matButton="tonal" (click)="addToSchedule(item)">
           <mat-icon>add_to_queue</mat-icon>
