@@ -20,7 +20,8 @@ export interface IVideoPlayer {
     type: string,
   }[],
   loadingSpinner: boolean,
-  errorDisplay: boolean
+  errorDisplay: boolean,
+  debug: boolean
 }
 
 @Component({
@@ -40,7 +41,8 @@ export class VideoPlayer implements AfterViewInit, OnDestroy {
     aspectRatio: '16:9',
     sources: [],
     errorDisplay: false,
-    loadingSpinner: false
+    loadingSpinner: false,
+    debug: false,
   }
   player: VideoJsPlayer;
 

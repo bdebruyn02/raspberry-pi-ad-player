@@ -49,12 +49,12 @@ export class VideoSection implements OnInit {
   }
   private playNextSchedule() {
     const now = new Date();
+    now.setHours(0, 0, 0, 0);
 
     const schedules = this.ds.schedules()?.sort((a, b) => a.id - b.id) ?? [];
 
     // Filter schedules by time window
-    const availableSchedules = schedules
-      .filter(s => s.start_time <= now && s.end_time >= now);
+    const availableSchedules = schedules.filter(s => s.start_time <= now && s.end_time >= now);
 
     if (availableSchedules.length === 0) {
       console.log('No active schedules at this time');
