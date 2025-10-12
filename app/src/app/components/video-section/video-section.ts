@@ -16,6 +16,8 @@ import {IAppSettings} from '../../interfaces/appsettings';
 })
 export class VideoSection {
   currentSrc = signal<string | undefined>(undefined);
+  currentMaxDuration = signal<number>(0);
+  videoId = signal<string | undefined>(undefined);
   ds = inject(DataService);
 
   private readonly dialog = inject(MatDialog);
@@ -83,6 +85,8 @@ export class VideoSection {
       return;
     }
 
+    this.currentMaxDuration.update(() => nextSchedule.max_duration);
+    this.videoId.update(() => `${video.filename}_${this.generateRandomString(8)}`);
     this.currentSrc.update(() => `file://${encodeURI(video.filepath)}`);
   }
 
@@ -96,4 +100,13 @@ export class VideoSection {
     if (index === -1) return null; // not found
     return ids[(index + 1) % ids.length];
   }
+
+  private generateRandomString(length: number = 5): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
 }

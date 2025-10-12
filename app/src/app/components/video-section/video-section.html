@@ -9,11 +9,13 @@
 
     <app-video-player
       [videoSrc]="currentSrc()"
+      [maxDuration]="currentMaxDuration()"
+      [videoId]="videoId()"
       (ended)="onVideoEnded()"
     />
   </div>
 
-  <div class="grid_2_1">
+  <div class="grid_2_1 button-container ">
     <button matButton="filled" (click)="ds.syncVideos()">
       <mat-icon>sync</mat-icon>
       Sync Videos

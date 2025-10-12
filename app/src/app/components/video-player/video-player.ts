@@ -33,6 +33,9 @@ export interface IVideoPlayer {
 export class VideoPlayer implements OnDestroy {
   target = viewChild<ElementRef>('target');
   videoSrc = input<string>();
+  maxDuration = input<number>();
+  videoId = input<string>();
+
   playerCreated = signal<boolean>(false)
   ended = output();
 
@@ -47,27 +50,43 @@ export class VideoPlayer implements OnDestroy {
   }
 
   player?: VideoJsPlayer;
+  private currentVideoId?: string; // tracks actual src set on player
+  private maxDurationTimer?: ReturnType<typeof setTimeout>;
+  private endedEmitted = false; // avoid double-emitting
 
   constructor() {
     effect(() => {
-      console.info(this.videoSrc(), this.playerCreated());
-      if (this.videoSrc() && this.playerCreated()) {
-        console.info("start new video");
-        this.player.src({ src: this.videoSrc(), type: 'video/mp4' });
-        this.player.load();
-        this.player.play();
+      const src = this.videoSrc();
+      const videoId = this.videoId();
+      const created = this.playerCreated();
+
+      if (!created && this.target()) {
+        this.init();
       }
 
-      if(this.target() && !this.player) {
-        this.init()
+      if (this.player && src && videoId) {
+        this.loadNewSource(src, videoId, this.maxDuration());
       }
+    });
 
+    effect(() => {
+      // Whenever maxDuration input changes, reset timer with the current value
+      const maxDuration = this.maxDuration();
+
+      if (this.player && this.currentVideoId) {
+        this.resetMaxDurationTimer(maxDuration);
+      }
     });
   }
 
+
   ngOnDestroy(): void {
+    this.clearMaxDurationTimer();
+
     if (this.player) {
       this.player.dispose();
+      this.player = undefined;
+      this.playerCreated.set(false);
     }
   }
 
@@ -75,10 +94,60 @@ export class VideoPlayer implements OnDestroy {
     if (!this.target() || this.playerCreated()) return;
 
     this.player = videojs(this.target()?.nativeElement, this.options);
+    this.player.muted(true); // ensuring it is muted.
     this.playerCreated.set(true);
 
     this.player.on('ended', () => {
-      this.ended.emit();
+      this.clearMaxDurationTimer();
+
+      if (!this.endedEmitted) {
+        this.endedEmitted = true;
+        this.ended.emit();
+      }
     })
+  }
+
+  private loadNewSource(src: string, videoId?: string, maxDurationSeconds?: number) {
+    if (!this.player) return;
+
+    this.endedEmitted = false;
+    this.clearMaxDurationTimer();
+    this.player.reset();
+    this.currentVideoId = videoId;
+
+    // set src and load
+    this.player.src({ src, type: 'video/mp4' });
+    this.player.load();
+    this.player.muted(true);
+
+    this.player.play();
+
+    // set max duration if provided (>0)
+    this.resetMaxDurationTimer(maxDurationSeconds);
+  }
+
+  private resetMaxDurationTimer(maxDurationSeconds?: number) {
+    this.clearMaxDurationTimer();
+
+    const maxDuration = maxDurationSeconds ?? 0;
+    if (maxDuration > 0) {
+      // Ensure we don't double-emit ended
+      this.maxDurationTimer = setTimeout(() => {
+        // stop playback and emit ended
+        this.player?.pause();
+
+        if (!this.endedEmitted) {
+          this.endedEmitted = true;
+          this.ended.emit();
+        }
+      }, maxDuration * 1000);
+    }
+  }
+
+  private clearMaxDurationTimer() {
+    if (this.maxDurationTimer) {
+      clearTimeout(this.maxDurationTimer);
+      this.maxDurationTimer = undefined;
+    }
   }
 }
