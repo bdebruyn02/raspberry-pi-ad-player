@@ -4,9 +4,23 @@
  */
 
 const path = require('path');
+const {app} = require("electron");
+const fs = require("fs");
 const sqlite3 = require('sqlite3').verbose();
 
-const dbPath = path.join(__dirname, 'media.db');
+let dbPath;
+
+if (!app.isPackaged) {
+    // Development mode
+    dbPath = path.join(__dirname, 'media.db');
+} else {
+    // Production mode (packaged)
+    const userDataPath = path.join(app.getPath('home'), '.config', 'mediascheduler');
+    if (!fs.existsSync(userDataPath)) {
+        fs.mkdirSync(userDataPath, { recursive: true });
+    }
+    dbPath = path.join(userDataPath, 'media.db');
+}
 
 function connectDB() {
     return new sqlite3.Database(dbPath);

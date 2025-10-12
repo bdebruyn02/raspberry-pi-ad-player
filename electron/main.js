@@ -13,16 +13,20 @@ async function createWindow() {
         autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: true,
+            enableRemoteModule: false,
+            backgroundThrottling: false, // keeps timers active even in background
         },
     });
     const isPackaged = app.isPackaged ?? false;
 
-    const indexPath = isPackaged
+    const indexPath = app.isPackaged
         ? path.join(__dirname, '../app/dist/app/browser/index.html')
         : 'http://localhost:4200';
 
     if (isPackaged) {
+        mainWindow.setKiosk(true);
         await mainWindow.loadFile(indexPath);
     } else {
         await mainWindow.loadURL(indexPath);
@@ -37,6 +41,9 @@ app.whenReady().then(async () => {
     Database.init();
     await createWindow();
 });
+
+app.commandLine.appendSwitch('ignore-gpu-blacklist');
+
 
 // Video Calls
 // Sync Videos

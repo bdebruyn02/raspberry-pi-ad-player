@@ -9,10 +9,22 @@ const sqlite3 = require('sqlite3').verbose();
 const { execSync } = require('child_process');
 const { app } = require('electron');
 
-const dbPath = path.join(__dirname, 'media.db');
+let dbPath;
+
+if (!app.isPackaged) {
+    // Development mode
+    dbPath = path.join(__dirname, 'media.db');
+} else {
+    // Production mode (packaged)
+    const userDataPath = path.join(app.getPath('home'), '.config', 'mediascheduler');
+    if (!fs.existsSync(userDataPath)) {
+        fs.mkdirSync(userDataPath, { recursive: true });
+    }
+    dbPath = path.join(userDataPath, 'media.db');
+}
 
 // Environment-aware video directory
-const VIDEO_DIR = app.isPackaged ? '/home/admin/videos' : '/home/bdebruyn/Videos';
+const VIDEO_DIR = app.isPackaged ? '/home/admin/Videos' : '/home/bdebruyn/Videos';
 
 function connectDB() {
     return new sqlite3.Database(dbPath);

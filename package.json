@@ -1,57 +1,39 @@
 {
-  "name": "raspberry-pi-ad-player",
+  "name": "MediaScheduler",
   "version": "1.0.0",
-  "description": "",
-  "homepage": "https://github.com/bdebruyn02/raspberry-pi-ad-player#readme",
-  "bugs": {
-    "url": "https://github.com/bdebruyn02/raspberry-pi-ad-player/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bdebruyn02/raspberry-pi-ad-player.git"
-  },
-  "license": "ISC",
-  "author": "",
-  "type": "commonjs",
   "main": "electron/main.js",
+  "description": "A Raspberry Pi media scheduler and video player",
+  "productName": "MediaScheduler",
   "scripts": {
     "serve": "cd app && ng serve",
-    "electron": "wait-on tcp:4200 && npx electron electron/main.js",
-    "start": "concurrently -k \"npm:serve\" \"npm:electron\"",
-    "build": "cd app && ng build --configuration production",
-    "build:electron": "npm run build && electron-builder"
-  },
-  "build": {
-    "appId": "com.bdebruyn.mediascheduler",
-    "productName": "MediaScheduler",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "electron/**/*",
-      "app/dist/app/browser/**/*"
-    ],
-    "extraResources": [
-      {
-        "from": "electron/",
-        "to": "electron"
-      }
-    ],
-    "afterPack": "./electron/main.js",
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb",
-        "rpm"
-      ],
-      "category": "Utility"
-    }
+    "build": "cd app && ng build --configuration production --base-href ./",
+    "start": "concurrently \"npm run serve\" \"npm run start-electron\"",
+    "start-electron": "wait-on http://localhost:4200 && electron-forge start",
+    "start:prod": "electron-forge start",
+    "package": "electron-forge package --arch=arm64",
+    "make": "electron-forge make --arch=arm64"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.10.2",
+    "@electron-forge/maker-deb": "^7.10.2",
+    "@electron-forge/maker-rpm": "^7.10.2",
+    "@electron-forge/maker-squirrel": "^7.10.2",
+    "@electron-forge/maker-zip": "^7.10.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
+    "@electron-forge/plugin-fuses": "^7.10.2",
+    "@electron/fuses": "^1.8.0",
     "@electron/remote": "^2.1.3",
     "concurrently": "^9.2.1",
+    "dependencies-tree": "^2.0.0",
     "electron": "^38.2.2",
-    "sqlite3": "^5.1.7",
+    "electron-forge-plugin-dependencies": "^1.0.0",
     "wait-on": "^9.0.1"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.1",
+    "sqlite3": "^5.1.7"
+  },
+  "config": {
+    "forge": "./forge.config.js"
   }
 }

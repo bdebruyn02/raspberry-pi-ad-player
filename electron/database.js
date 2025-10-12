@@ -1,6 +1,22 @@
-const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
 const path = require('path');
-const dbPath = path.join(__dirname, 'media.db');
+const { app } = require('electron');
+const sqlite3 = require('sqlite3').verbose();
+
+// Determine DB path
+let dbPath;
+
+if (!app.isPackaged) {
+    // Development mode
+    dbPath = path.join(__dirname, 'media.db');
+} else {
+    // Production mode (packaged)
+    const userDataPath = path.join(app.getPath('home'), '.config', 'mediascheduler');
+    if (!fs.existsSync(userDataPath)) {
+        fs.mkdirSync(userDataPath, { recursive: true });
+    }
+    dbPath = path.join(userDataPath, 'media.db');
+}
 
 const tableCreate = {
     videos: `CREATE TABLE IF NOT EXISTS videos (
