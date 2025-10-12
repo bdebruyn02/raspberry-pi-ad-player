@@ -20,6 +20,7 @@ export class DataService {
   async syncVideos() {
     await syncVideos();
     await this.loadVideos();
+    await this.loadSchedule();
   }
 
   async createSchedule(args: Partial<ISchedule>)  {
@@ -43,17 +44,17 @@ export class DataService {
     let data = await getSchedules() as ISchedule[];
 
     data = data.map(x => ({...x, start_time: new Date(x.start_time), end_time: new Date(x.end_time)}))
-    this.schedules.set(data);
+    this.schedules.update(() => data);
   }
 
   async loadVideos() {
     const data = await getVideos() as IVideo[];
-    this.videos.set(data);
+    this.videos.update(() => data);
   }
 
   async loadSettings() {
     const data = await getSettings() as IAppSettings;
-    this.appSettings.set(data);
+    this.appSettings.update(() => data);
   }
 
   // MISC

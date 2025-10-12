@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, effect, inject, signal} from '@angular/core';
 import {DataService} from '../../services/data';
 import {VideoPlayer} from '../video-player/video-player';
 import {MatButtonModule} from '@angular/material/button';
@@ -11,51 +11,19 @@ import {MatIconModule} from '@angular/material/icon';
   templateUrl: './video-section.html',
   styleUrl: './video-section.scss'
 })
-export class VideoSection implements OnInit {
+export class VideoSection {
   currentSrc = signal<string | undefined>(undefined);
   ds = inject(DataService);
 
   private currentId?: number;
 
-  async ngOnInit() {
-    await this.loadSettings();
-    await this.loadVideos();
-    await this.loadSchedules();
-  }
-
-  async toggleFullscreen() {
-    await this.ds.toggleFullscreen();
-  }
-
-  async syncVideos() {
-    await this.ds.syncVideos();
-  }
-
-
-  private async loadSettings() {
-    try {
-      await this.ds.loadSettings();
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  private async loadVideos() {
-    try {
-      await this.ds.loadVideos();
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  private async loadSchedules() {
-    try {
-      await this.ds.loadSchedule();
-
-      this.playNextSchedule();
-    } catch (err) {
-      console.error('Error loading schedules:', err);
-    }
+  constructor() {
+    effect(() => {
+      if(this.ds.schedules()) {
+        console.info("test")
+        this.playNextSchedule();
+      }
+    });
   }
 
   private playNextSchedule() {

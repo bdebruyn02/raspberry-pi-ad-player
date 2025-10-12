@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {MatListModule} from '@angular/material/list';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -20,19 +20,15 @@ import {FormsModule} from '@angular/forms';
   templateUrl: './scheduled-videos.html',
   styleUrl: './scheduled-videos.scss'
 })
-export class ScheduledVideos implements OnInit {
+export class ScheduledVideos {
    ds = inject(DataService);
-
-    async ngOnInit() {
-      await this.loadSchedules()
-    }
 
     async onUpdate(schedule: ISchedule) {
       try {
         const {changes} = await this.ds.updateSchedule(schedule.id, schedule);
 
         if(changes) {
-          await this.loadSchedules();
+          await this.ds.loadSchedule();
         }
       } catch (error) {
         console.error(error);
@@ -44,19 +40,10 @@ export class ScheduledVideos implements OnInit {
         const {changes} = await this.ds.deleteSchedule(id);
 
         if(changes) {
-          await this.loadSchedules();
+          await this.ds.loadSchedule();
         }
       } catch (error) {
         console.error(error);
       }
     }
-
-    private async loadSchedules() {
-      try {
-        await this.ds.loadSchedule();
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
 }
