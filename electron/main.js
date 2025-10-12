@@ -4,8 +4,6 @@ const Database = require('./database');
 const videoManager = require('./videoManager');
 const scheduleManager = require('./scheduleManager');
 const settingsManager = require('./settingsManager');
-
-const isDev = !app.isPackaged; // Detect dev mode (when using ng serve)
 let mainWindow;
 
 async function createWindow() {
@@ -15,19 +13,19 @@ async function createWindow() {
         autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
-            webSecurity: !isDev, // allow dev server from localhost
             nodeIntegration: true
         },
     });
+    const isPackaged = app.isPackaged ?? false;
 
-    if (isDev) {
-        // When running ng serve
-        await mainWindow.loadURL('http://localhost:4200');
-        // mainWindow.webContents.openDevTools(); // optional
-    } else {
-        // When running the built app
-        const indexPath = path.join(__dirname, '../app/dist/app/browser/index.html');
+    const indexPath = isPackaged
+        ? path.join(__dirname, '../app/dist/app/browser/index.html')
+        : 'http://localhost:4200';
+
+    if (isPackaged) {
         await mainWindow.loadFile(indexPath);
+    } else {
+        await mainWindow.loadURL(indexPath);
     }
 
     mainWindow.on('closed', () => {
