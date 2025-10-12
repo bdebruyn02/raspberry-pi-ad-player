@@ -32,6 +32,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   gap: 8px;
 }
 
+.grid_2_1 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(1, 1fr);
+  gap: 8px;
+}
+
 .big-button {
   height: 56px !important;
+}
+
+.full-width {
+  width: 100%;
 }

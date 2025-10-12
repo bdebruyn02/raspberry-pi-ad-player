@@ -15,7 +15,7 @@ const tableCreate = {
         start_time DATETIME,
         end_time DATETIME,
         max_duration INTEGER,
-        FOREIGN KEY(video_id) REFERENCES videos(id)
+        FOREIGN KEY(video_id) REFERENCES videos(id) ON DELETE CASCADE
       )`,
     app_settings: `CREATE TABLE IF NOT EXISTS app_settings (
         id INTEGER PRIMARY KEY CHECK(id = 1),

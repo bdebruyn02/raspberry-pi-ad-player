@@ -1,14 +1,34 @@
-<div
-  class="video-container"
-  [style.position]="'absolute'"
-  [style.left.px]="ds.appSettings()?.pos_x"
-  [style.top.px]="ds.appSettings()?.pos_y"
-  [style.width.px]="ds.appSettings()?.width"
-  [style.height.px]="ds.appSettings()?.height"
->
+<div class="grid_1_2">
+  <div
+    class="video-container"
+    [style.left.px]="ds.appSettings()?.pos_x"
+    [style.top.px]="ds.appSettings()?.pos_y"
+    [style.width.px]="ds.appSettings()?.width"
+    [style.height.px]="ds.appSettings()?.height"
+  >
 
-  <app-video-player
-    [videoSrc]="currentSrc()"
-    (ended)="onVideoEnded()"
-  />
+    <app-video-player
+      [videoSrc]="currentSrc()"
+      (ended)="onVideoEnded()"
+    />
+  </div>
+
+  <div class="grid_2_1">
+    <button matButton="filled" (click)="syncVideos()">
+      <mat-icon>sync</mat-icon>
+      Sync Videos
+    </button>
+
+    <div class="grid_2_1">
+      <button matButton="tonal">
+        <mat-icon>settings</mat-icon>
+        Settings
+      </button>
+
+      <button matButton="tonal" (click)="toggleFullscreen()">
+        <mat-icon>fullscreen</mat-icon>
+        Fullscreen
+      </button>
+    </div>
+  </div>
 </div>

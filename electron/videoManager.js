@@ -12,7 +12,7 @@ const { app } = require('electron');
 const dbPath = path.join(__dirname, 'media.db');
 
 // Environment-aware video directory
-const VIDEO_DIR = app.isPackaged ? '/home/pi/videos' : '/home/bdebruyn/Videos';
+const VIDEO_DIR = app.isPackaged ? '/home/admin/videos' : '/home/bdebruyn/Videos';
 
 function connectDB() {
     return new sqlite3.Database(dbPath);
