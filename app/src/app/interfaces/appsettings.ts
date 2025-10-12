@@ -1,5 +1,5 @@
 export interface IAppSettings {
-  id: string;
+  id: number;
   pos_x: number;
   pos_y: number;
   width: number;

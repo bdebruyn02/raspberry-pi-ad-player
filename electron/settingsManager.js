@@ -32,7 +32,7 @@ function updateSettings(data, callback) {
 
     db.run(
         `UPDATE app_settings
-     SET pos_x = ?, pos_y = ?, width = ?, height = ?, theme = ?
+     SET pos_x = ?, pos_y = ?, width = ?, height = ?
      WHERE id = 1`,
         [pos_x ?? 0, pos_y ?? 0, width ?? 288, height ?? 192],
         function (err) {

@@ -18,11 +18,13 @@ export class AvailableVideos  {
  ds = inject(DataService);
 
   async addToSchedule(args: IVideo) {
+    const startDate = new Date();
+    const endDate = new Date(startDate.getFullYear() + 1, startDate.getMonth(), startDate.getDate());
 
     const params: Partial<ISchedule> = {
       video_id: args.id,
-      start_time: new Date(),
-      end_time: new Date(),
+      start_time: startDate,
+      end_time: endDate,
       max_duration: args.duration
     };
 

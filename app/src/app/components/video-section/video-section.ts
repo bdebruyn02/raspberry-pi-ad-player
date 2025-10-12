@@ -3,6 +3,9 @@ import {DataService} from '../../services/data';
 import {VideoPlayer} from '../video-player/video-player';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
+import {MatDialog} from '@angular/material/dialog';
+import {DialogData, SettingsDialog} from '../settings-dialog/settings-dialog';
+import {IAppSettings} from '../../interfaces/appsettings';
 
 
 @Component({
@@ -15,6 +18,7 @@ export class VideoSection {
   currentSrc = signal<string | undefined>(undefined);
   ds = inject(DataService);
 
+  private readonly dialog = inject(MatDialog);
   private currentId?: number;
 
   constructor() {
@@ -22,6 +26,22 @@ export class VideoSection {
       if(this.ds.schedules()) {
         console.info("test")
         this.playNextSchedule();
+      }
+    });
+  }
+
+  openDialog(): void {
+    const dialogRef = this.dialog.open(SettingsDialog, {
+      data: { settings: {...this.ds.appSettings()}} as DialogData,
+    });
+
+    dialogRef.afterClosed().subscribe(async (result: IAppSettings) => {
+      if (result !== undefined) {
+        const {changes} = await this.ds.updateSettings(result);
+
+        if (changes) {
+          this.ds.appSettings.update(() => result);
+        }
       }
     });
   }

@@ -1,1 +1,27 @@
-<p>settings-dialog works!</p>
+<h2 mat-dialog-title>Update Settings</h2>
+<mat-dialog-content>
+  <div class="grid_2_1 margin-top-s">
+    <mat-form-field appearance="outline">
+      <mat-label>Width</mat-label>
+      <input matInput type="number" [(ngModel)]="settings.width" min="0"/>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Height</mat-label>
+      <input matInput type="number" [(ngModel)]="settings.height" min="0" />
+    </mat-form-field>
+  </div>
+  <div class="grid_2_1">
+    <mat-form-field appearance="outline">
+      <mat-label>Position X</mat-label>
+      <input matInput type="number" [(ngModel)]="settings.pos_x" min="0"/>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Position Y</mat-label>
+      <input matInput type="number" [(ngModel)]="settings.pos_y" min="0" />
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button matButton (click)="onCancelClick()">Cancel</button>
+  <button matButton [mat-dialog-close]="settings">Save</button>
+</mat-dialog-actions>
