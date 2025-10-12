@@ -21,8 +21,8 @@ const tableCreate = {
         id INTEGER PRIMARY KEY CHECK(id = 1),
         pos_x INTEGER DEFAULT 0,
         pos_y INTEGER DEFAULT 0,
-        width INTEGER DEFAULT 640,
-        height INTEGER DEFAULT 360
+        width INTEGER DEFAULT 288,
+        height INTEGER DEFAULT 192
       )`
 }
 
