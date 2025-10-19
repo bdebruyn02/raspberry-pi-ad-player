@@ -1,0 +1,61 @@
+name: Build MediaScheduler (.deb ARM64)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    name: Build .deb for Raspberry Pi (ARM64)
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Enable QEMU to emulate ARM64
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      # Run the build in an ARM64 Ubuntu container
+      - name: Build inside ARM64 Ubuntu
+        uses: addnab/docker-run-action@v3
+        with:
+          image: arm64v8/ubuntu:22.04
+          options: --platform linux/arm64 -v ${{ github.workspace }}:/app
+          run: |
+            set -e
+            apt update
+            # Install all Tauri and Angular build dependencies
+            apt install -y curl git build-essential pkg-config \
+              libssl-dev libwebkit2gtk-4.1-0 libgtk-3-0 \
+              libayatana-appindicator3-dev librsvg2-dev \
+              sqlite3 libsqlite3-dev nodejs npm
+            npm install -g yarn
+
+            # Move into project directory
+            cd /app
+
+            # Install Node deps
+            yarn install
+
+            # Build Angular frontend
+            yarn build
+
+            # Install Rust + Tauri CLI
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            . "$HOME/.cargo/env"
+            cargo install tauri-cli
+
+            # Build the .deb bundle
+            yarn build:pi
+
+      # Upload the .deb as an artifact
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MediaScheduler_arm64
+          path: src-tauri/target/release/bundle/deb/*.deb
