@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # needed for creating releases
+  contents: write
 
 jobs:
   build:
@@ -17,14 +17,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Enable ARM64 emulation
+      # Enable ARM64 emulation for Raspberry Pi builds
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
 
-      # Build inside an ARM64 Ubuntu container
-      - name: Build inside ARM64 Ubuntu
+      # Build in ARM64 Ubuntu container with Node 22
+      - name: Build inside ARM64 Ubuntu (Node 22)
         uses: addnab/docker-run-action@v3
         with:
           image: arm64v8/ubuntu:22.04
@@ -32,32 +32,40 @@ jobs:
           run: |
             set -eux
             apt update
-            # Install build dependencies
             apt install -y curl git build-essential pkg-config \
               libssl-dev libwebkit2gtk-4.1-0 libgtk-3-0 \
               libayatana-appindicator3-dev librsvg2-dev \
-              sqlite3 libsqlite3-dev nodejs npm
-            # Move into project folder
+              sqlite3 libsqlite3-dev ca-certificates
+
+            # Install Node.js 22.x (same as your local)
+            curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+            apt install -y nodejs
+
+            node -v
+            npm -v
+
+            # Install Angular CLI globally
+            npm install -g @angular/cli
+
             cd /app
-            # Install frontend dependencies
             npm ci
-            # Build Angular app
-            npm run build
+
             # Install Rust + Tauri CLI
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             . "$HOME/.cargo/env"
-            cargo install tauri-cli
-            # Build .deb
+            cargo install tauri-cli --version "^2.0.0" --locked
+
+            # Build .deb package for ARM64
             npm run build:pi
 
-      # Upload .deb artifact for debugging
+      # Upload the resulting .deb as an artifact
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
         with:
           name: MediaScheduler_arm64
           path: src-tauri/target/release/bundle/deb/*.deb
 
-      # Create or update a GitHub Release with the .deb
+      # Automatically create or update a GitHub Release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
