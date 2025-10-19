@@ -1,9 +1,12 @@
-name: Build MediaScheduler (.deb ARM64)
+name: Build & Release MediaScheduler (.deb ARM64)
 
 on:
   push:
     branches: [ main ]
-  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write  # needed for creating releases
 
 jobs:
   build:
@@ -14,48 +17,52 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Enable QEMU to emulate ARM64
+      # Enable ARM64 emulation
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
 
-      # Run the build in an ARM64 Ubuntu container
+      # Build inside an ARM64 Ubuntu container
       - name: Build inside ARM64 Ubuntu
         uses: addnab/docker-run-action@v3
         with:
           image: arm64v8/ubuntu:22.04
           options: --platform linux/arm64 -v ${{ github.workspace }}:/app
           run: |
-            set -e
+            set -eux
             apt update
-            # Install all Tauri and Angular build dependencies
+            # Install build dependencies
             apt install -y curl git build-essential pkg-config \
               libssl-dev libwebkit2gtk-4.1-0 libgtk-3-0 \
               libayatana-appindicator3-dev librsvg2-dev \
               sqlite3 libsqlite3-dev nodejs npm
-            npm install -g yarn
-
-            # Move into project directory
+            # Move into project folder
             cd /app
-
-            # Install Node deps
-            yarn install
-
-            # Build Angular frontend
-            yarn build
-
+            # Install frontend dependencies
+            npm ci
+            # Build Angular app
+            npm run build
             # Install Rust + Tauri CLI
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             . "$HOME/.cargo/env"
             cargo install tauri-cli
+            # Build .deb
+            npm run build:pi
 
-            # Build the .deb bundle
-            yarn build:pi
-
-      # Upload the .deb as an artifact
+      # Upload .deb artifact for debugging
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
         with:
           name: MediaScheduler_arm64
           path: src-tauri/target/release/bundle/deb/*.deb
+
+      # Create or update a GitHub Release with the .deb
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: src-tauri/target/release/bundle/deb/*.deb
+          tag_name: v${{ github.run_number }}
+          name: MediaScheduler v${{ github.run_number }}
+          draft: false
+          prerelease: false
