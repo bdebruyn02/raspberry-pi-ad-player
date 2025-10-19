@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "tauri:build": "WEBKIT_DISABLE_DMABUF_RENDERER=1 tauri",
-    "tauri": "WEBKIT_DISABLE_DMABUF_RENDERER=1 tauri dev"
+    "tauri:dev": "WEBKIT_DISABLE_DMABUF_RENDERER=1 tauri dev",
+    "tauri": "tauri"
   },
   "prettier": {
     "printWidth": 100,
