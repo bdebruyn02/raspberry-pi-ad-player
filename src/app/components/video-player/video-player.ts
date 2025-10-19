@@ -32,7 +32,8 @@ export interface IVideoPlayer {
 })
 export class VideoPlayer implements OnDestroy {
   target = viewChild<ElementRef>('target');
-  videoSrc = input<string>();
+    videoSrc = input<string>();
+    videoType = input<string>();
   maxDuration = input<number>();
   videoId = input<string>();
 
@@ -65,7 +66,7 @@ export class VideoPlayer implements OnDestroy {
       }
 
       if (this.player && src && videoId) {
-        this.loadNewSource(src, videoId, this.maxDuration());
+        this.loadNewSource(src, videoId, this.videoType(), this.maxDuration());
       }
     });
 
@@ -107,7 +108,7 @@ export class VideoPlayer implements OnDestroy {
     })
   }
 
-  private loadNewSource(src: string, videoId?: string, maxDurationSeconds?: number) {
+  private loadNewSource(src: string, videoId?: string, type?: string, maxDurationSeconds?: number) {
     if (!this.player) return;
 
     this.endedEmitted = false;
@@ -116,7 +117,7 @@ export class VideoPlayer implements OnDestroy {
     this.currentVideoId = videoId;
 
     // set src and load
-    this.player.src({ src, type: 'video/mp4' });
+    this.player.src({ src, type: type?? 'video/mp4' });
     this.player.load();
     this.player.muted(true);
 

@@ -1,64 +1,94 @@
-import {Injectable, signal} from '@angular/core';
+import {inject, Injectable, signal} from '@angular/core';
 import {IVideo} from '../interfaces/video';
 import {ISchedule} from '../interfaces/schedule';
 import {IAppSettings} from '../interfaces/appsettings';
-// const {syncVideos, getVideos, getSchedules, toggleFullscreen, createSchedule, updateSchedule, deleteSchedule, getSettings, updateSettings} = window.electronAPI;
+import {VideoService} from "./videos";
+import {AppSettingsService} from "./app-settings";
+import {ScheduleService} from "./schedule";
+import {invoke} from '@tauri-apps/api/core';
+import { readFile } from '@tauri-apps/plugin-fs';
+
 
 interface IUpdateReturn {
-  changes: number;
+    changes: number;
 }
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class DataService {
-  videos = signal<IVideo[] | null>(null);
-  schedules = signal<ISchedule[] | null>(null);
-  appSettings = signal<IAppSettings | null>(null);
+    videos = signal<IVideo[] | null>(null);
+    schedules = signal<ISchedule[] | null>(null);
+    appSettings = signal<IAppSettings | null>(null);
+    currentBlobUrl = signal<string | undefined>(undefined);
+    currentBlobMime = signal<string | undefined>(undefined);
 
-  // Create, Delete, Edit Methods
-  async syncVideos() {
-    // await syncVideos();
-    await this.loadVideos();
-    await this.loadSchedule();
-  }
+    private videoService = inject(VideoService);
+    private appSettingsService = inject(AppSettingsService);
+    private schedulesService = inject(ScheduleService);
 
-  async createSchedule(args: Partial<ISchedule>)  {
-    return {id: 0}//await createSchedule(args);
-  }
+    // Create, Delete, Edit Methods
+    async syncVideos() {
+        await this.videoService.syncVideos();
+        await this.loadVideos();
+        await this.loadSchedule();
+    }
 
-  async updateSchedule(id: number, data: Partial<ISchedule>) : Promise<IUpdateReturn> {
-    return {changes: 0}//await updateSchedule(id, data);
-  }
+    async createSchedule(args: Partial<ISchedule>) {
+        return await this.schedulesService.createSchedule(args);
+    }
 
-  async deleteSchedule(id: number) : Promise<IUpdateReturn> {
-  return {changes: 0} //await deleteSchedule(id);
-  }
+    async updateSchedule(id: number, data: Partial<ISchedule>) {
+        return await this.schedulesService.updateSchedule(id, data);
+    }
 
-  async updateSettings (args: Partial<IAppSettings>) {
-  return {changes: 0}//await updateSettings(args);
-  }
+    async deleteSchedule(id: number) {
+        return await this.schedulesService.deleteSchedule(id);
+    }
 
-  // Fetch methods
-  async loadSchedule() {
-    let data = [] as ISchedule[];//await getSchedules() as ISchedule[];
+    async updateSettings(args: Partial<IAppSettings>) {
+        return await this.appSettingsService.updateSettings(args);
+    }
 
-    data = data.map(x => ({...x, start_time: new Date(x.start_time), end_time: new Date(x.end_time)}))
-    this.schedules.update(() => data);
-  }
+    // Fetch methods
+    async loadSchedule() {
+        let data = await this.schedulesService.getSchedules();
 
-  async loadVideos() {
-    const data = [] as IVideo[];
-    this.videos.update(() => data);
-  }
+        data = data.map(x => ({...x, start_time: new Date(x.start_time), end_time: new Date(x.end_time)}))
+        this.schedules.update(() => data);
+    }
 
-  async loadSettings() {
-    const data = {} as IAppSettings;
-    this.appSettings.update(() => data);
-  }
+    async loadVideos() {
+        const data = await this.videoService.getVideos();
+        this.videos.update(() => data);
+    }
 
-  // MISC
-  async toggleFullscreen() {
-    // await toggleFullscreen();
-  }
+    async loadSettings() {
+        const data = await this.appSettingsService.getSettings();
+        this.appSettings.update(() => data);
+    }
+
+    async setCurrentVideo(video: IVideo) {
+        const currentUrl = this.currentBlobUrl();
+
+        if (currentUrl) {
+            URL.revokeObjectURL(currentUrl);
+            this.currentBlobUrl.update(() => undefined);
+            this.currentBlobMime.update(() => undefined);
+        }
+
+        const bytes = await readFile(video.filepath);
+        const ext = video.filename.split('.').pop()?.toLowerCase() || 'mp4';
+        const mime = this.videoService.getMimeType(ext);
+
+        const blob = new Blob([bytes], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        this.currentBlobUrl.update(() => blobUrl);
+        this.currentBlobMime.update(() => mime);
+    }
+
+    // MISC
+    async toggleFullscreen() {
+        await invoke('toggle_fullscreen');
+    }
 }

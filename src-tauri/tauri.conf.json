@@ -23,6 +23,12 @@
       "csp": null
     }
   },
+  "plugins": {
+    "sql": {
+      "preload": ["sqlite:media.db"]
+    }
+  },
+
   "bundle": {
     "active": true,
     "targets": "all",

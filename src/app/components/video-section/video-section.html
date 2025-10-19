@@ -8,7 +8,8 @@
   >
 
     <app-video-player
-      [videoSrc]="currentSrc()"
+      [videoSrc]="ds.currentBlobUrl()"
+      [videoType]="ds.currentBlobMime()"
       [maxDuration]="currentMaxDuration()"
       [videoId]="videoId()"
       (ended)="onVideoEnded()"

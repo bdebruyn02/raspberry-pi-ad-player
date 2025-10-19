@@ -14,36 +14,32 @@ import {provideNativeDateAdapter} from '@angular/material/core';
 import {FormsModule} from '@angular/forms';
 
 @Component({
-  selector: 'app-scheduled-videos',
-  imports: [MatListModule, MatButtonModule, MatIconModule, MatTooltipModule, CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, FormsModule],
-  providers: [provideNativeDateAdapter()],
-  templateUrl: './scheduled-videos.html',
-  styleUrl: './scheduled-videos.scss'
+    selector: 'app-scheduled-videos',
+    imports: [MatListModule, MatButtonModule, MatIconModule, MatTooltipModule, CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, FormsModule],
+    providers: [provideNativeDateAdapter()],
+    templateUrl: './scheduled-videos.html',
+    styleUrl: './scheduled-videos.scss'
 })
 export class ScheduledVideos {
-   ds = inject(DataService);
+    ds = inject(DataService);
 
     async onUpdate(schedule: ISchedule) {
-      try {
-        const {changes} = await this.ds.updateSchedule(schedule.id, schedule);
+        try {
+            await this.ds.updateSchedule(schedule.id, schedule);
 
-        if(changes) {
-          await this.ds.loadSchedule();
+            await this.ds.loadSchedule();
+        } catch (error) {
+            console.error(error);
         }
-      } catch (error) {
-        console.error(error);
-      }
     }
 
     async onDelete(id: number) {
-      try {
-        const {changes} = await this.ds.deleteSchedule(id);
+        try {
+            await this.ds.deleteSchedule(id);
 
-        if(changes) {
-          await this.ds.loadSchedule();
+            await this.ds.loadSchedule();
+        } catch (error) {
+            console.error(error);
         }
-      } catch (error) {
-        console.error(error);
-      }
     }
 }

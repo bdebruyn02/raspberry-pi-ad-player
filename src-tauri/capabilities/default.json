@@ -7,6 +7,12 @@
   ],
   "permissions": [
     "core:default",
-    "sql:default"
+    "sql:default",
+    "sql:allow-execute",
+    "fs:default",
+    {
+      "identifier": "fs:scope",
+      "allow": [{ "path": "$VIDEO/**"}]
+    }
   ]
 }

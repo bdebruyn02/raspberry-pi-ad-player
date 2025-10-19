@@ -15,7 +15,6 @@ import {IAppSettings} from '../../interfaces/appsettings';
   styleUrl: './video-section.scss'
 })
 export class VideoSection {
-  currentSrc = signal<string | undefined>(undefined);
   currentMaxDuration = signal<number>(0);
   videoId = signal<string | undefined>(undefined);
   ds = inject(DataService);
@@ -24,10 +23,9 @@ export class VideoSection {
   private currentId?: number;
 
   constructor() {
-    effect(() => {
+    effect(async () => {
       if(this.ds.schedules()) {
-        console.info("test")
-        this.playNextSchedule();
+        await this.playNextSchedule();
       }
     });
   }
@@ -39,16 +37,14 @@ export class VideoSection {
 
     dialogRef.afterClosed().subscribe(async (result: IAppSettings) => {
       if (result !== undefined) {
-        const {changes} = await this.ds.updateSettings(result);
+          await this.ds.updateSettings(result);
 
-        if (changes) {
           this.ds.appSettings.update(() => result);
-        }
       }
     });
   }
 
-  private playNextSchedule() {
+  private async playNextSchedule() {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
@@ -87,12 +83,12 @@ export class VideoSection {
 
     this.currentMaxDuration.update(() => nextSchedule.max_duration);
     this.videoId.update(() => `${video.filename}_${this.generateRandomString(8)}`);
-    this.currentSrc.update(() => `file://${encodeURI(video.filepath)}`);
+    await this.ds.setCurrentVideo(video);
   }
 
   // Called when VideoPlayer emits ended or max_duration expires
-  onVideoEnded() {
-    this.playNextSchedule();
+  async onVideoEnded() {
+    await this.playNextSchedule();
   }
 
   private getNextId(ids: number[], currentId: number) {
