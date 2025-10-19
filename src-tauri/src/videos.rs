@@ -1,7 +1,5 @@
 use crate::helpers::{get_video_duration, get_videos_dir};
 use serde::Serialize;
-use std::path::PathBuf;
-use std::process::Command;
 
 #[derive(Serialize)]
 pub struct VideoFile {
