@@ -2,9 +2,9 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Media Scheduler",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.bdebruyn.media-scheduler",
   "build": {
-    "frontendDist": "../dist",
+    "frontendDist": "../dist/app/browser",
     "devUrl": "http://localhost:4200",
     "beforeDevCommand": "npm start",
     "beforeBuildCommand": "npm run build"
@@ -16,7 +16,7 @@
         "width": 800,
         "height": 600,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": true
       }
     ],
     "security": {
@@ -38,6 +38,14 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "linux": {
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libgtk-3-0"
+        ]
+      }
+    }
   }
 }

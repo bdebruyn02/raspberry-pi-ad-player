@@ -4,10 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --configuration production --base-href ./",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "tauri:build": "WEBKIT_DISABLE_DMABUF_RENDERER=1 tauri",
+    "build:pi": "cd src-tauri && cargo tauri build --bundles deb",
     "tauri:dev": "WEBKIT_DISABLE_DMABUF_RENDERER=1 tauri dev",
     "tauri": "tauri"
   },
