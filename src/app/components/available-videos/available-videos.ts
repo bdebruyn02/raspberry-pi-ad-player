@@ -29,11 +29,8 @@ export class AvailableVideos  {
     };
 
     try {
-      const id = await this.ds.createSchedule(params);
-
-      if(id) {
+        await this.ds.createSchedule(params);
         await this.ds.loadSchedule(); // reloads schedule
-      }
     } catch (e) {
       console.error(e);
     }

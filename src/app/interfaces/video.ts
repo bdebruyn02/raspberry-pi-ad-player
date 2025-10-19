@@ -4,3 +4,10 @@ export interface IVideo {
   filepath: string;
   duration: number;
 }
+
+export interface ICurrentVideo {
+    id: string;
+    url: string;
+    type: string;
+    maxDuration: number;
+}

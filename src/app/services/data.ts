@@ -1,5 +1,5 @@
 import {inject, Injectable, signal} from '@angular/core';
-import {IVideo} from '../interfaces/video';
+import {ICurrentVideo, IVideo} from '../interfaces/video';
 import {ISchedule} from '../interfaces/schedule';
 import {IAppSettings} from '../interfaces/appsettings';
 import {VideoService} from "./videos";
@@ -20,8 +20,6 @@ export class DataService {
     videos = signal<IVideo[] | null>(null);
     schedules = signal<ISchedule[] | null>(null);
     appSettings = signal<IAppSettings | null>(null);
-    currentBlobUrl = signal<string | undefined>(undefined);
-    currentBlobMime = signal<string | undefined>(undefined);
 
     private videoService = inject(VideoService);
     private appSettingsService = inject(AppSettingsService);
@@ -68,23 +66,15 @@ export class DataService {
         this.appSettings.update(() => data);
     }
 
-    async setCurrentVideo(video: IVideo) {
-        const currentUrl = this.currentBlobUrl();
-
-        if (currentUrl) {
-            URL.revokeObjectURL(currentUrl);
-            this.currentBlobUrl.update(() => undefined);
-            this.currentBlobMime.update(() => undefined);
-        }
-
+    async getVideoBlob(video: IVideo) {
         const bytes = await readFile(video.filepath);
         const ext = video.filename.split('.').pop()?.toLowerCase() || 'mp4';
         const mime = this.videoService.getMimeType(ext);
 
         const blob = new Blob([bytes], { type: mime });
         const blobUrl = URL.createObjectURL(blob);
-        this.currentBlobUrl.update(() => blobUrl);
-        this.currentBlobMime.update(() => mime);
+
+        return { url: blobUrl, type: mime };
     }
 
     // MISC

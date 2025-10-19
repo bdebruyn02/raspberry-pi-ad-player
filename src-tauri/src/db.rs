@@ -4,6 +4,7 @@ pub struct TableCreate {
     pub videos: &'static str,
     pub schedule: &'static str,
     pub app_settings: &'static str,
+    pub app_settings_insert: &'static str,
 }
 
 pub const TABLE_CREATE: TableCreate = TableCreate {
@@ -34,6 +35,11 @@ pub const TABLE_CREATE: TableCreate = TableCreate {
             height INTEGER DEFAULT 192
         )
     "#,
+    app_settings_insert: r#"
+         INSERT INTO app_settings (id, pos_x, pos_y, width, height)
+         SELECT 1, 0, 0, 288, 192
+         WHERE NOT EXISTS (SELECT 1 FROM app_settings WHERE id = 1);
+    "#
 };
 
 /// Return migrations using TABLE_CREATE constants
@@ -57,5 +63,11 @@ pub fn get_migrations() -> Vec<Migration> {
             sql: TABLE_CREATE.app_settings,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 4,
+            description: "Insert default row if missing",
+            sql: TABLE_CREATE.app_settings_insert,
+            kind: tauri_plugin_sql::MigrationKind::Up,
+        }
     ]
 }
