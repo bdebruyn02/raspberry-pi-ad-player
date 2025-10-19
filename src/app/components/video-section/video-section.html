@@ -1,0 +1,36 @@
+<div class="grid_1_2">
+  <div
+    class="video-container"
+    [style.left.px]="ds.appSettings()?.pos_x"
+    [style.top.px]="ds.appSettings()?.pos_y"
+    [style.width.px]="ds.appSettings()?.width"
+    [style.height.px]="ds.appSettings()?.height"
+  >
+
+    <app-video-player
+      [videoSrc]="currentSrc()"
+      [maxDuration]="currentMaxDuration()"
+      [videoId]="videoId()"
+      (ended)="onVideoEnded()"
+    />
+  </div>
+
+  <div class="grid_2_1 button-container ">
+    <button matButton="filled" (click)="ds.syncVideos()">
+      <mat-icon>sync</mat-icon>
+      Sync Videos
+    </button>
+
+    <div class="grid_2_1">
+      <button matButton="tonal" (click)="openDialog()">
+        <mat-icon>settings</mat-icon>
+        Settings
+      </button>
+
+      <button matButton="tonal" (click)="ds.toggleFullscreen()">
+        <mat-icon>fullscreen</mat-icon>
+        Fullscreen
+      </button>
+    </div>
+  </div>
+</div>

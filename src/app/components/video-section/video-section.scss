@@ -1,0 +1,15 @@
+.grid_1_2 {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.video-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.button-container {
+  margin-left: 5px;
+}

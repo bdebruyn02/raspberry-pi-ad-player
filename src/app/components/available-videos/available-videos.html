@@ -1,0 +1,22 @@
+<h2>Available Videos:</h2>
+<div>
+  <mat-list>
+    @for (item of ds.videos(); track $index) {
+      <mat-list-item>
+        <span class="bold" matListItemTitle>{{ item.filename }}</span>
+        <span matListItemLine>{{ item.duration * 1000 | date: 'HH:mm:ss':'UTC'}}</span>
+
+        <span matListItemMeta>
+         <button matButton="tonal" (click)="addToSchedule(item)">
+          <mat-icon>add_to_queue</mat-icon>
+          Add to Schedule
+        </button>
+        </span>
+      </mat-list-item>
+    } @empty {
+      <mat-list-item matTooltip="No Videos, try adding some videos to your 'Videos' folder and action the resync.">
+        No Videos, try adding some videos to your 'Videos' folder and action the resync.
+      </mat-list-item>
+    }
+  </mat-list>
+</div>
