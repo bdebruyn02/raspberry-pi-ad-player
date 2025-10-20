@@ -1,76 +1,61 @@
-name: Build & Release MediaScheduler (.deb ARM64)
+name: 'publish-arm64'
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
-
-permissions:
-  contents: write
+    branches:
+      - main
 
 jobs:
-  build:
-    name: Build .deb for Raspberry Pi (ARM64)
+  publish-tauri:
+    permissions:
+      contents: write
     runs-on: ubuntu-22.04
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # Enable ARM64 emulation for Raspberry Pi builds
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      # Set up Node 22
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          platforms: arm64
+          node-version: '22'
 
-      # Build in ARM64 Ubuntu container with Node 22
-      - name: Build inside ARM64 Ubuntu (Node 22)
-        uses: addnab/docker-run-action@v3
+      # Install Rust stable
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      # Install Ubuntu dependencies for Tauri (ARM64)
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf build-essential pkg-config libssl-dev sqlite3 libsqlite3-dev
+
+      # Install frontend dependencies
+      - name: Install frontend dependencies
+        run: npm ci
+
+      # Build frontend
+      - name: Build Angular frontend
+        run: npm run build
+
+      # Install Tauri CLI
+      - name: Install Tauri CLI
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          . "$HOME/.cargo/env"
+          cargo install tauri-cli
+
+      # Build the .deb package for Raspberry Pi
+      - name: Build .deb for ARM64
+        run: npm run build:pi
+
+      # Publish release using Tauri Action
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          image: arm64v8/ubuntu:22.04
-          options: --platform linux/arm64 -v ${{ github.workspace }}:/app
-          run: |
-            set -eux
-            apt update
-            apt install -y curl git build-essential pkg-config \
-              libssl-dev libwebkit2gtk-4.1-0 libgtk-3-0 \
-              libayatana-appindicator3-dev librsvg2-dev \
-              sqlite3 libsqlite3-dev ca-certificates
-
-            # Install Node.js 22.x (same as your local)
-            curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-            apt install -y nodejs
-
-            node -v
-            npm -v
-
-            # Install Angular CLI globally
-            npm install -g @angular/cli
-
-            cd /app
-            npm ci
-
-            # Install Rust + Tauri CLI
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            . "$HOME/.cargo/env"
-            cargo install tauri-cli --version "^2.0.0" --locked
-
-            # Build .deb package for ARM64
-            npm run build:pi
-
-      # Upload the resulting .deb as an artifact
-      - name: Upload .deb artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: MediaScheduler_arm64
-          path: src-tauri/target/release/bundle/deb/*.deb
-
-      # Automatically create or update a GitHub Release
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: src-tauri/target/release/bundle/deb/*.deb
-          tag_name: v${{ github.run_number }}
-          name: MediaScheduler v${{ github.run_number }}
-          draft: false
+          tagName: app-v__VERSION__       # automatically replaced by app version in tauri.conf.json
+          releaseName: 'MediaScheduler v__VERSION__'
+          releaseBody: 'See the assets to download this version and install.'
+          releaseDraft: false
           prerelease: false
+          args: '--target aarch64-unknown-linux-gnu --bundles deb'
