@@ -7,9 +7,9 @@
     "build": "ng build --configuration production --base-href ./",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "build:pi": "cd src-tauri && cargo tauri build --bundles deb",
     "tauri:dev": "WEBKIT_DISABLE_DMABUF_RENDERER=1 tauri dev",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "build:pi": "cd src-tauri && tauri build --target aarch64-unknown-linux-gnu --bundles deb"
   },
   "prettier": {
     "printWidth": 100,
